@@ -4,21 +4,119 @@
 
 ## ansible-role-openvpn
 
-
-
-Description: An Ansible Role that installs and configures an OpenVPN server,
+**Description:** An Ansible Role that installs and configures an OpenVPN server,
 automatically generating all necessary client configuration files
 for secure connections.
 
+**How to execute it?**
 
+**1-** Create the following files, customizing the contents of the inventory and vars.yml files according to your requirements:
+```
+.
+├── ansible.cfg
+├── inventory
+├── main.yml
+├── requirements.yml
+└── vars.yml
+```
 
-| Field                | Value           |
-|--------------------- |-----------------|
-| Readme update        | 28/02/2025 |
+`ansible.cfg`:
+```
+➜ cat ansible.cfg
+[defaults]
+host_key_checking = False
+inventory = inventory
 
+[privilege_escalation]
+become=True
+become_method=sudo
+become_user=root
+become_ask_pass=False
 
+[ssh_connection]
+ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
+```
 
+`inventory`:
+```
+➜ cat inventory
+[openvpn_server]
+15.161.233.48 ansible_ssh_port=33333 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/Users/myuser/.ssh/id_rsa_myuser
+```
 
+`vars.yml`:
+```
+➜ cat vars.yml
+openvpn_server_ip: "15.161.233.48"
+openvpn_client_bundle_copy_locally:
+  local_copy: true
+  client_dir: "/Users/myuser/openvpn/"
+```
+
+`ansible.cfg`:
+```
+➜ cat ansible.cfg
+[defaults]
+host_key_checking = False
+inventory = inventory
+
+[privilege_escalation]
+become=True
+become_method=sudo
+become_user=root
+become_ask_pass=False
+
+[ssh_connection]
+ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
+```
+
+`requirements.yml`:
+```
+➜ cat requirements.yml
+---
+roles:
+  - name: lesposito87.ansible-role-openvpn
+    src: https://github.com/lesposito87/ansible-role-openvpn.git
+    version: main
+```
+
+`main.yml`:
+```
+➜ cat main.yml
+---
+- hosts: openvpn_server
+  become: true
+  gather_facts: True
+  vars_files:
+    - vars.yml
+
+  tasks:
+    - include_role:
+        name: lesposito87.ansible-role-openvpn
+```
+
+**2-** Install the Ansible Role locally:
+```
+➜ ansible-galaxy install -r requirements.yml --force
+```
+
+**3-** Execute the Ansible Playbook:
+```
+➜ ansible-playbook  main.yml
+```
+At the end of the execution you should find locally all the required OpenVPN Client files:
+```
+/Users/myuser/openvpn/
+├── ca.crt
+├── ca.key
+├── client.conf
+├── client.crt
+├── client.key
+├── dh.pem
+└── pfs.key
+```
+
+**4-** Import the `client.conf` file into your preferred OpenVPN client software (e.g. [tunnelblink](https://tunnelblick.net/)) and establish a connection to your OpenVPN server."
 
 
 ### Defaults
@@ -160,24 +258,6 @@ classDef rescue stroke:#665352,stroke-width:2px;
   openvpn_yml3-->End
 ```
 
-
-## Playbook
-
-```yml
-- hosts: all
-  become: true
-  gather_facts: True
-
-  tasks:
-    - include_role:
-        name: lesposito87.ansible-role-openvpn
-
-```
-## Playbook graph
-```mermaid
-flowchart TD
-  all-->|Include role| lesposito87_ansible_role_openvpn0(unnamed task 0<br>include_role: lesposito87 ansible role openvpn):::includeRole
-```
 
 ## Author Information
 https://www.linkedin.com/in/lucaesposito87/
