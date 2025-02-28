@@ -10,6 +10,8 @@ An Ansible Role that installs and configures an OpenVPN server,
 automatically generating all necessary client configuration files
 for secure connections.
 
+⚠️ This Ansible Role has been tested exclusively on **Amazon Linux 2**
+
 **How to execute it?**
 
 **1-** Create the following files, customizing the contents of the inventory and vars.yml files according to your requirements:
