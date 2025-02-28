@@ -10,7 +10,7 @@ An Ansible Role that installs and configures an OpenVPN server,
 automatically generating all necessary client configuration files
 for secure connections.
 
-⚠️ This Ansible Role has been tested exclusively on **Amazon Linux 2**
+⚠️ This Ansible Role has been tested exclusively on **Amazon Linux 2**.
 
 **How to execute it?**
 
@@ -119,7 +119,7 @@ At the end of the execution you should find locally all the required OpenVPN Cli
 └── pfs.key
 ```
 
-**4-** Import the `client.conf` file into your preferred OpenVPN client software (e.g. [tunnelblink](https://tunnelblick.net/)) and establish a connection to your OpenVPN server."
+**4-** Import the `client.conf` file into your preferred OpenVPN client software (e.g. [tunnelblink](https://tunnelblick.net/)) and establish the connection to your OpenVPN server.
 
 <br>
 
