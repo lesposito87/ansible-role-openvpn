@@ -4,9 +4,9 @@ client
 dev tun
 proto udp
 remote {{ openvpn_server_ip }} 1194
-ca {{ openvpn_client_dir}}/ca.crt
-cert {{ openvpn_client_dir}}/client.crt
-key {{ openvpn_client_dir}}/client.key
+ca {{ openvpn_client_bundle_copy_locally.client_dir }}/ca.crt
+cert {{ openvpn_client_bundle_copy_locally.client_dir }}/client.crt
+key {{ openvpn_client_bundle_copy_locally.client_dir }}/client.key
 tls-version-min 1.2
 tls-cipher TLS-ECDHE-RSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-ECDSA-WITH-AES-128-GCM-SHA256:TLS-ECDHE-RSA-WITH-AES-256-GCM-SHA384:TLS-DHE-RSA-WITH-AES-256-CBC-SHA256
 cipher AES-256-CBC
@@ -20,7 +20,7 @@ data-ciphers AES-256-GCM:AES-128-GCM:CHACHA20-POLY1305:AES-256-CBC
 remote-cert-tls server
 verb 3
 tls-client
-tls-auth {{ openvpn_client_dir }}/pfs.key
+tls-auth {{ openvpn_client_bundle_copy_locally.client_dir }}/pfs.key
 
 # AWS Metadata Service route
 route 169.254.169.253 255.255.255.255

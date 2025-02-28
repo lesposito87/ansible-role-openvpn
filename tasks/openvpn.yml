@@ -190,15 +190,15 @@
         file_type: file
       register: client_bundle_files
 
-    - name: Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.local_dir }}"
+    - name: Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.client_dir }}"
       ansible.builtin.fetch:
         src: "{{ item_client_bundle_file.path }}"
-        dest: "{{ openvpn_client_bundle_copy_locally.local_dir }}"
+        dest: "{{ openvpn_client_bundle_copy_locally.client_dir }}"
         flat: yes
       loop: "{{ client_bundle_files.files }}"
       loop_control:
         loop_var: item_client_bundle_file
 
   when: openvpn_client_bundle_copy_locally.local_copy and 
-        openvpn_client_bundle_copy_locally.local_dir | length > 0 and
-        openvpn_client_bundle_copy_locally.local_dir.endswith('/')
+        openvpn_client_bundle_copy_locally.client_dir | length > 0 and
+        openvpn_client_bundle_copy_locally.client_dir.endswith('/')

@@ -12,11 +12,12 @@
       - openvpn_server_ip.split('.') | map('int') | select('>=', 0) | list | length == 4  # Validate octets are integers
       - openvpn_server_ip.split('.') | map('int') | select('<=', 255) | list | length == 4 # Ensure octets are <= 255
 
-- name: Assert that "openvpn_client_dir" is set and not empty
+- name: Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/"
   assert:
     that:
-      - openvpn_client_dir is defined
-      - openvpn_client_dir | length > 0
+      - openvpn_client_bundle_copy_locally.client_dir is defined
+      - openvpn_client_bundle_copy_locally.client_dir | length > 0
+      - openvpn_client_bundle_copy_locally.client_dir.endswith('/')
 
 - name: Including Openvpn setup tasks
   include_tasks: "openvpn.yml"

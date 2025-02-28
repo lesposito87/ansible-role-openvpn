@@ -2,7 +2,7 @@
 
 # 📃 Role overview
 
-## ansible-openvpn
+## ansible-role-openvpn
 
 
 
@@ -35,7 +35,7 @@ for secure connections.
 | [openvpn_subnet_netmask](defaults/main.yml#L18)   | str   | `255.255.255.0` |    True  |  OpenVPN Netmask |
 | [openvpn_nat_rules_subnets](defaults/main.yml#L22)   | list   | `['10.8.0.0/24']` |    True  |  OpenVPN Subnet (used to configure iptables NAT rules) |
 | [easy_rsa_git_repo_tag](defaults/main.yml#L27)   | str   | `v3.2.1` |    True  |  EasyRSA Git Repository tag |
-| [openvpn_client_bundle_copy_locally](defaults/main.yml#L31)   | dict   | `{'local_copy': True, 'local_dir': '/tmp/openvpn/'}` |    True  |  Local directory in which copy the resulting OpenVPN Client configs |
+| [openvpn_client_bundle_copy_locally](defaults/main.yml#L31)   | dict   | `{'local_copy': True, 'client_dir': '/tmp/openvpn/'}` |    True  |  Local directory in which copy the resulting OpenVPN Client configs; Set this to "false" if you do not want to copy the client bundle to your local machine |
 
 
 
@@ -75,7 +75,7 @@ for secure connections.
 | Copy client files to the "/etc/openvpn/client-bundle" directory | copy | False |
 | Unnamed_block | block | True |
 | Unnamed | ansible.builtin.find | False |
-| Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.local_dir }}" | ansible.builtin.fetch | False |
+| Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.client_dir }}" | ansible.builtin.fetch | False |
 
 #### File: tasks/main.yml
 
@@ -83,7 +83,7 @@ for secure connections.
 | ---- | ------ | --------- |
 | Wait for connection... |  | False |
 | Assert that "openvpn_server_ip" is set, not empty, and a valid IP address | assert | False |
-| Assert that "openvpn_client_dir" is set and not empty | assert | False |
+| Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/" | assert | False |
 | Including Openvpn setup tasks | include_tasks | False |
 
 
@@ -131,11 +131,11 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start___Enable_openvpn_systemd_service19-->|Task| Create_the_client_bundle_directory20[create the client bundle directory]:::task
   Create_the_client_bundle_directory20-->|Task| Copy_OpenVPN__client_conf__template21[copy openvpn  client conf  template]:::task
   Copy_OpenVPN__client_conf__template21-->|Task| Copy_client_files_to_the___etc_openvpn_client_bundle__directory22[copy client files to the   etc openvpn client<br>bundle  directory]:::task
-  Copy_client_files_to_the___etc_openvpn_client_bundle__directory22-->|Block Start| Unnamed_task_2323_block_start_0[[unnamed task 23<br>When: **openvpn client bundle copy locally local copy and<br>openvpn client bundle copy locally local dir  <br>length   0 and openvpn client bundle copy locally<br>local dir endswith**]]:::block
+  Copy_client_files_to_the___etc_openvpn_client_bundle__directory22-->|Block Start| Unnamed_task_2323_block_start_0[[unnamed task 23<br>When: **openvpn client bundle copy locally local copy and<br>openvpn client bundle copy locally client dir  <br>length   0 and openvpn client bundle copy locally<br>client dir endswith**]]:::block
   Unnamed_task_2323_block_start_0-->|Task| Unnamed_task_00[unnamed task 0]:::task
-  Unnamed_task_00-->|Task| Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_local_dir____1[copy openvpn client bundle locally on     openvpn<br>client bundle copy locally local dir    ]:::task
-  Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_local_dir____1-.->|End of Block| Unnamed_task_2323_block_start_0
-  Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_local_dir____1-->End
+  Unnamed_task_00-->|Task| Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1[copy openvpn client bundle locally on     openvpn<br>client bundle copy locally client dir    ]:::task
+  Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-.->|End of Block| Unnamed_task_2323_block_start_0
+  Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-->End
 ```
 
 
@@ -155,8 +155,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   Start-->|Task| Wait_for_connection___0[wait for connection   ]:::task
   Wait_for_connection___0-->|Task| Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1[assert that  openvpn server ip  is set  not empty <br>and a valid ip address]:::task
-  Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1-->|Task| Assert_that__openvpn_client_dir__is_set_and_not_empty2[assert that  openvpn client dir  is set and not<br>empty]:::task
-  Assert_that__openvpn_client_dir__is_set_and_not_empty2-->|Include task| openvpn_yml3[including openvpn setup tasks<br>include_task: openvpn yml]:::includeTasks
+  Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1-->|Task| Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2[assert that  openvpn client bundle copy locally<br>client dir  is set  is not empty and ends with    ]:::task
+  Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2-->|Include task| openvpn_yml3[including openvpn setup tasks<br>include_task: openvpn yml]:::includeTasks
   openvpn_yml3-->End
 ```
 
@@ -170,17 +170,17 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
   tasks:
     - include_role:
-        name: ansible-openvpn
+        name: lesposito87.ansible-role-openvpn
 
 ```
 ## Playbook graph
 ```mermaid
 flowchart TD
-  all-->|Include role| ansible_openvpn0(unnamed task 0<br>include_role: ansible openvpn):::includeRole
+  all-->|Include role| lesposito87_ansible_role_openvpn0(unnamed task 0<br>include_role: lesposito87 ansible role openvpn):::includeRole
 ```
 
 ## Author Information
-https://github.com/lesposito87
+https://www.linkedin.com/in/lucaesposito87/
 
 #### License
 
