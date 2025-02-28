@@ -4,7 +4,9 @@
 
 ## ansible-role-openvpn
 
-**Description:** An Ansible Role that installs and configures an OpenVPN server,
+**Description** 
+
+An Ansible Role that installs and configures an OpenVPN server,
 automatically generating all necessary client configuration files
 for secure connections.
 
@@ -41,13 +43,12 @@ ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
 ```
 ➜ cat inventory
 [openvpn_server]
-15.161.233.48 ansible_ssh_port=33333 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/Users/myuser/.ssh/id_rsa_myuser
+123.123.123.123 ansible_ssh_port=33333 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/Users/myuser/.ssh/id_rsa_myuser
 ```
 
 `vars.yml`:
 ```
 ➜ cat vars.yml
-openvpn_server_ip: "15.161.233.48"
 openvpn_client_bundle_copy_locally:
   local_copy: true
   client_dir: "/Users/myuser/openvpn/"
@@ -118,6 +119,7 @@ At the end of the execution you should find locally all the required OpenVPN Cli
 
 **4-** Import the `client.conf` file into your preferred OpenVPN client software (e.g. [tunnelblink](https://tunnelblick.net/)) and establish a connection to your OpenVPN server."
 
+<br>
 
 ### Defaults
 
@@ -135,12 +137,9 @@ At the end of the execution you should find locally all the required OpenVPN Cli
 | [easy_rsa_git_repo_tag](defaults/main.yml#L27)   | str   | `v3.2.1` |    True  |  EasyRSA Git Repository tag |
 | [openvpn_client_bundle_copy_locally](defaults/main.yml#L31)   | dict   | `{'local_copy': True, 'client_dir': '/tmp/openvpn/'}` |    True  |  Local directory where the resulting OpenVPN client configuration files will be copied. Set this to false if you do not wish to copy the client bundle to your local machine. |
 
-
-
-
+<br>
 
 ### Tasks
-
 
 #### File: tasks/openvpn.yml
 
@@ -184,10 +183,9 @@ At the end of the execution you should find locally all the required OpenVPN Cli
 | Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/" | assert | False |
 | Including Openvpn setup tasks | include_tasks | False |
 
+<br>
 
 ## Task Flow Graphs
-
-
 
 ### Graph for openvpn.yml
 
@@ -258,16 +256,13 @@ classDef rescue stroke:#665352,stroke-width:2px;
   openvpn_yml3-->End
 ```
 
-
 ## Author Information
 https://www.linkedin.com/in/lucaesposito87/
 
 #### License
-
 MIT
 
 #### Minimum Ansible Version
-
 2.7
 
 #### Platforms
