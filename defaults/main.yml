@@ -26,7 +26,7 @@ openvpn_nat_rules_subnets:
 # required: True
 easy_rsa_git_repo_tag: "v3.2.1"
 
-# title: Local directory in which copy the resulting OpenVPN Client configs; Set this to "false" if you do not want to copy the client bundle to your local machine
+# title: Local directory where the resulting OpenVPN client configuration files will be copied. Set this to false if you do not wish to copy the client bundle to your local machine.
 # required: True
 openvpn_client_bundle_copy_locally:
   local_copy: true
