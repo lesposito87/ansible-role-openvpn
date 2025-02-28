@@ -1,0 +1,206 @@
+---
+#####################
+### OPENVPN SETUP ###
+#####################
+
+# https://medium.com/@sonicjoy2002/building-openvpn-server-on-aws-ec2-84b2c0a1d934
+
+# Aprire porta 1194 udp/tcp nel SG
+
+- name: Check if SELinux is installed
+  find:
+    paths: "/etc/selinux"
+    hidden: false
+    file_type: file
+    patterns: "config"
+    recurse: no
+  register: selinux_result
+
+- name: Configuring SELinux in permissive mode
+  ansible.posix.selinux:
+    policy: targeted
+    state: permissive
+  when: (selinux_result.files | length > 0)
+
+- name: Ensure Firewalld/Iptables service are stopped
+  service:
+    name: "{{ item_firewalld_svc }}"
+    state: stopped
+    enabled: false
+  loop:
+    - firewalld
+    - iptables
+  loop_control:
+    loop_var: item_firewalld_svc
+  ignore_errors: yes
+
+- name: Install OpenVPN packages
+  package:
+    name: "{{ item_openvpn_pkgs }}"
+    state: present
+  loop: "{{ openvpn_pkgs }}"
+  loop_control:
+    loop_var: item_openvpn_pkgs
+
+- name: Clone Easy-RSA repo
+  git:
+    repo: https://github.com/OpenVPN/easy-rsa.git
+    dest: /etc/openvpn/easy-rsa
+    version: "{{ easy_rsa_git_repo_tag }}"
+    force: yes
+
+- name: Load "iptable_nat" module
+  shell: modprobe iptable_nat
+
+- name: Enable IPV4 IP forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    state: present
+    reload: yes
+
+- name: Get the first non-loopback network interface
+  set_fact:
+    openvpn_interface: "{{ ansible_interfaces | select('match', '^(?!lo|tun).*') | sort | first }}"
+
+- name: Render OpenVPN NAT rules template
+  template:
+    src: openvpn-nat-rules.sh.j2
+    dest: /usr/sbin/openvpn-nat-rules.sh
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Copy OpenVPN NAT rules systemd unit
+  copy:
+    src: openvpn-nat-rules.service
+    dest: /etc/systemd/system/openvpn-nat-rules.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start & Enable OpenVPN NAT rules systemd service
+  systemd_service:
+    name: openvpn-nat-rules
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Retrieve dir containing the binary based on easy-rsa major version
+  set_fact:
+    easyrsa_binary_dir: "/etc/openvpn/easy-rsa/easyrsa{{ easy_rsa_git_repo_tag | regex_search('^v([0-9]+)', '\\1') | first}}"
+    
+- name: Make sure easyrsa binary exist ("{{ easyrsa_binary_dir }}/easyrsa")
+  stat:
+    path: "{{ easyrsa_binary_dir }}/easyrsa"
+  register: stat_easyrsa_binary
+
+- fail:
+    msg: "File {{ easyrsa_binary_dir }}/easyrsa does not exist!"
+  when: not stat_easyrsa_binary.stat.exists
+
+- name: Check if the Easy-RSA PKI dir was already initialized ("{{ easyrsa_binary_dir }}/pki")
+  stat:
+    path: "{{ easyrsa_binary_dir }}/pki"
+  register: stat_easyrsa_pki
+
+- debug: 
+    msg: "Easy-RSA PKI dir was already initialized; if you want to reconfigure it from scratch, remove the '{{ easyrsa_binary_dir }}/pki' directory and rerun the Ansible role"
+  when: stat_easyrsa_pki.stat.exists
+
+- block: 
+
+    - name: Initialize the PKI, build the CA, generate the Diffie-Hellman key, create/sign server & client certificates
+      shell: |
+        ./easyrsa init-pki
+        echo -e "\n\n" | ./easyrsa build-ca nopass
+        ./easyrsa gen-dh
+        echo -e "\n\n" | ./easyrsa gen-req server nopass
+        echo -e "yes\n" | ./easyrsa sign-req server server
+        echo -e "\n\n" | ./easyrsa gen-req client nopass
+        echo -e "yes\n" | ./easyrsa sign-req client client
+      args:
+        chdir: "{{ easyrsa_binary_dir }}"  # Change directory to where Easy-RSA is located
+      environment:
+        EASYRSA_CERT_EXPIRE: "36500"
+
+    - name: Generate a TLS key for OpenVPN
+      shell: |
+        openvpn --genkey --secret pfs.key
+      args:
+        chdir: "/etc/openvpn"
+
+  when: not stat_easyrsa_pki.stat.exists
+
+- name: Copy OpenVPN systemd unit file
+  copy:
+    src: openvpn.service
+    dest: /etc/systemd/system/openvpn.service
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy OpenVPN "server.conf" template
+  template:
+    src: server.conf.j2
+    dest: /etc/openvpn/server/server.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Start & Enable openvpn systemd service
+  systemd_service:
+    name: openvpn
+    state: started
+    enabled: true
+    daemon_reload: true
+
+- name: Create the client-bundle directory
+  file:
+    path: /etc/openvpn/client-bundle
+    state: directory
+    mode: '0755'
+
+- name: Copy OpenVPN "client.conf" template
+  template:
+    src: client.conf.j2
+    dest: /etc/openvpn/client-bundle/client.conf
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Copy client files to the "/etc/openvpn/client-bundle" directory
+  copy:
+    src: "{{ item.src }}"
+    dest: /etc/openvpn/client-bundle/{{ item.dest }}
+    owner: root
+    group: root
+    mode: '0644'
+    remote_src: true
+  loop:
+    - { src: /etc/openvpn/pfs.key, dest: pfs.key }
+    - { src: "{{ easyrsa_binary_dir }}/pki/dh.pem", dest: dh.pem }
+    - { src: "{{ easyrsa_binary_dir }}/pki/ca.crt", dest: ca.crt }
+    - { src: "{{ easyrsa_binary_dir }}/pki/private/ca.key", dest: ca.key }
+    - { src: "{{ easyrsa_binary_dir }}/pki/private/client.key", dest: client.key }
+    - { src: "{{ easyrsa_binary_dir }}/pki/issued/client.crt", dest: client.crt }
+
+- block:
+
+    - ansible.builtin.find:
+        paths: "/etc/openvpn/client-bundle"
+        file_type: file
+      register: client_bundle_files
+
+    - name: Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.local_dir }}"
+      ansible.builtin.fetch:
+        src: "{{ item_client_bundle_file.path }}"
+        dest: "{{ openvpn_client_bundle_copy_locally.local_dir }}"
+        flat: yes
+      loop: "{{ client_bundle_files.files }}"
+      loop_control:
+        loop_var: item_client_bundle_file
+
+  when: openvpn_client_bundle_copy_locally.local_copy and 
+        openvpn_client_bundle_copy_locally.local_dir | length > 0 and
+        openvpn_client_bundle_copy_locally.local_dir.endswith('/')

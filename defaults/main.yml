@@ -1,0 +1,33 @@
+---
+# title: Public IP of your OpenVPN instance
+# required: True
+openvpn_server_ip: "{{ ansible_host }}"
+
+# title: Required packages
+# required: True
+openvpn_pkgs:
+  - openvpn
+  - git
+
+# title: OpenVPN Subnet
+# required: True
+openvpn_subnet_cidr: "10.8.0.0"
+
+# title: OpenVPN Netmask
+# required: True
+openvpn_subnet_netmask: "255.255.255.0"
+
+# title: OpenVPN Subnet (used to configure iptables NAT rules)
+# required: True
+openvpn_nat_rules_subnets:
+  - "10.8.0.0/24"
+
+# title: EasyRSA Git Repository tag
+# required: True
+easy_rsa_git_repo_tag: "v3.2.1"
+
+# title: Local directory in which copy the resulting OpenVPN Client configs
+# required: True
+openvpn_client_bundle_copy_locally:
+  local_copy: true
+  local_dir: "/tmp/openvpn/"

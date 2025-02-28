@@ -1,0 +1,19 @@
+---
+dependencies: []
+
+galaxy_info:
+  role_name: ansible-openvpn
+  author: https://github.com/lesposito87
+  description: |
+    An Ansible Role that installs and configures an OpenVPN server,
+    automatically generating all necessary client configuration files
+    for secure connections.
+  min_ansible_version: 2.7
+  license: MIT
+  platforms:
+    - name: Amazon Linux
+      versions:
+        - "2"
+
+collections:
+  - ansible.posix.selinux

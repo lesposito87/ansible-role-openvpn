@@ -1,0 +1,4 @@
+#!/bin/bash
+{% for subnet in openvpn_nat_rules_subnets %}
+iptables -t nat -A POSTROUTING -s {{ subnet }} -o {{ openvpn_interface }} -j MASQUERADE
+{% endfor %}

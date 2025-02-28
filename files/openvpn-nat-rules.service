@@ -1,0 +1,14 @@
+[Unit]
+Description = Configure NAT rules needed by OpenVPN
+Wants = network-online.target
+After = network-online.target
+
+[Service]
+ExecStart = /usr/sbin/openvpn-nat-rules.sh
+ExecStartPre = /bin/sleep 10
+Type = oneshot
+User = root
+Group = root
+
+[Install]
+WantedBy = multi-user.target

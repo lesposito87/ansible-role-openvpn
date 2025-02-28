@@ -1,0 +1,24 @@
+# {{ ansible_managed }}
+port 1194
+proto udp
+dev tun
+ca {{ easyrsa_binary_dir }}/pki/ca.crt
+cert {{ easyrsa_binary_dir }}/pki/issued/server.crt
+key {{ easyrsa_binary_dir }}/pki/private/server.key
+dh {{ easyrsa_binary_dir }}/pki/dh.pem
+cipher AES-256-CBC
+auth SHA512
+server {{ openvpn_subnet_cidr }} {{ openvpn_subnet_netmask }}
+push "redirect-gateway def1 bypass-dhcp"
+push "dhcp-option DNS 169.254.169.253"  # AWS DNS Resolver (internal)
+push "dhcp-option DNS 8.8.8.8"         # Google DNS (external)
+push "dhcp-option DNS 8.8.4.4"         # Google DNS (external)
+ifconfig-pool-persist ipp.txt
+keepalive 10 120
+persist-key
+persist-tun
+status openvpn-status.log
+log-append openvpn.log
+verb 3
+tls-server
+tls-auth /etc/openvpn/pfs.key
