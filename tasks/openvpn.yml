@@ -3,9 +3,7 @@
 ### OPENVPN SETUP ###
 #####################
 
-# https://medium.com/@sonicjoy2002/building-openvpn-server-on-aws-ec2-84b2c0a1d934
-
-# Aprire porta 1194 udp/tcp nel SG
+# For reference: https://medium.com/@sonicjoy2002/building-openvpn-server-on-aws-ec2-84b2c0a1d934
 
 - name: Check if SELinux is installed
   find:
