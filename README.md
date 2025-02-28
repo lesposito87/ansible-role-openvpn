@@ -56,23 +56,6 @@ openvpn_client_bundle_copy_locally:
   client_dir: "/Users/myuser/openvpn/"
 ```
 
-`ansible.cfg`:
-```
-➜ cat ansible.cfg
-[defaults]
-host_key_checking = False
-inventory = inventory
-
-[privilege_escalation]
-become=True
-become_method=sudo
-become_user=root
-become_ask_pass=False
-
-[ssh_connection]
-ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
-```
-
 `requirements.yml`:
 ```
 ➜ cat requirements.yml
@@ -105,7 +88,7 @@ roles:
 
 **3-** Execute the Ansible Playbook:
 ```
-➜ ansible-playbook  main.yml
+➜ ansible-playbook main.yml
 ```
 At the end of the execution you should find locally all the required OpenVPN Client files:
 ```
