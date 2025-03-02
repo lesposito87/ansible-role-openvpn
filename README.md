@@ -14,7 +14,7 @@ for secure connections.
 
 **How to execute it?**
 
-**1-** Create the following files, customizing the contents of the inventory and vars.yml files according to your requirements:
+**1-** Create the following files, customizing the contents of the `inventory` and `vars.yml` files according to your requirements:
 ```
 .
 ├── ansible.cfg
