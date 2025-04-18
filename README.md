@@ -70,9 +70,9 @@ for secure connections.
 | Start & Enable OpenVPN NAT rules systemd service | systemd_service | False |
 | Retrieve dir containing the binary based on easy-rsa major version | set_fact | False |
 | Make sure easyrsa binary exist ("{{ easyrsa_binary_dir }}/easyrsa") | stat | False |
-| Unnamed | fail | True |
+| Fail if file "{{ easyrsa_binary_dir }}/easyrsa" does not exist | fail | True |
 | Check if the Easy-RSA PKI dir was already initialized ("{{ easyrsa_binary_dir }}/pki") | stat | False |
-| Unnamed | debug | True |
+| Easy-RSA PKI dir was already initialized | debug | True |
 | Unnamed_block | block | True |
 | Initialize the PKI, build the CA, generate the Diffie-Hellman key, create/sign server & client certificates | shell | False |
 | Generate a TLS key for OpenVPN | shell | False |
@@ -82,7 +82,7 @@ for secure connections.
 | Create the client-bundle directory | file | False |
 | Copy OpenVPN "client.conf" template | template | False |
 | Copy client files to the "/etc/openvpn/client-bundle" directory | copy | False |
-| Unnamed_block | block | True |
+| Copy OpenVPN Client Bundle locally | block | True |
 | Unnamed | ansible.builtin.find | False |
 | Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.client_dir }}" | ansible.builtin.fetch | False |
 
@@ -140,10 +140,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Copy_OpenVPN_NAT_rules_systemd_unit9-->|Task| Start___Enable_OpenVPN_NAT_rules_systemd_service10[start   enable openvpn nat rules systemd service]:::task
   Start___Enable_OpenVPN_NAT_rules_systemd_service10-->|Task| Retrieve_dir_containing_the_binary_based_on_easy_rsa_major_version11[retrieve dir containing the binary based on easy<br>rsa major version]:::task
   Retrieve_dir_containing_the_binary_based_on_easy_rsa_major_version11-->|Task| Make_sure_easyrsa_binary_exist___easyrsa_binary_dir_easyrsa__12[make sure easyrsa binary exist   easyrsa binary<br>dir easyrsa  ]:::task
-  Make_sure_easyrsa_binary_exist___easyrsa_binary_dir_easyrsa__12-->|Task| Unnamed_task_1313[unnamed task 13<br>When: **not stat easyrsa binary stat exists**]:::task
-  Unnamed_task_1313-->|Task| Check_if_the_Easy_RSA_PKI_dir_was_already_initialized___easyrsa_binary_dir_pki__14[check if the easy rsa pki dir was already<br>initialized   easyrsa binary dir pki  ]:::task
-  Check_if_the_Easy_RSA_PKI_dir_was_already_initialized___easyrsa_binary_dir_pki__14-->|Task| Unnamed_task_1515[unnamed task 15<br>When: **stat easyrsa pki stat exists**]:::task
-  Unnamed_task_1515-->|Block Start| Unnamed_task_1616_block_start_0[[unnamed task 16<br>When: **not stat easyrsa pki stat exists**]]:::block
+  Make_sure_easyrsa_binary_exist___easyrsa_binary_dir_easyrsa__12-->|Task| Fail_if_file__easyrsa_binary_dir_easyrsa__does_not_exist13[fail if file  easyrsa binary dir easyrsa  does not<br>exist<br>When: **not stat easyrsa binary stat exists**]:::task
+  Fail_if_file__easyrsa_binary_dir_easyrsa__does_not_exist13-->|Task| Check_if_the_Easy_RSA_PKI_dir_was_already_initialized___easyrsa_binary_dir_pki__14[check if the easy rsa pki dir was already<br>initialized   easyrsa binary dir pki  ]:::task
+  Check_if_the_Easy_RSA_PKI_dir_was_already_initialized___easyrsa_binary_dir_pki__14-->|Task| Easy_RSA_PKI_dir_was_already_initialized15[easy rsa pki dir was already initialized<br>When: **stat easyrsa pki stat exists**]:::task
+  Easy_RSA_PKI_dir_was_already_initialized15-->|Block Start| Unnamed_task_1616_block_start_0[[unnamed task 16<br>When: **not stat easyrsa pki stat exists**]]:::block
   Unnamed_task_1616_block_start_0-->|Task| Initialize_the_PKI__build_the_CA__generate_the_Diffie_Hellman_key__create_sign_server___client_certificates0[initialize the pki  build the ca  generate the<br>diffie hellman key  create sign server   client<br>certificates]:::task
   Initialize_the_PKI__build_the_CA__generate_the_Diffie_Hellman_key__create_sign_server___client_certificates0-->|Task| Generate_a_TLS_key_for_OpenVPN1[generate a tls key for openvpn]:::task
   Generate_a_TLS_key_for_OpenVPN1-.->|End of Block| Unnamed_task_1616_block_start_0
@@ -153,10 +153,10 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start___Enable_openvpn_systemd_service19-->|Task| Create_the_client_bundle_directory20[create the client bundle directory]:::task
   Create_the_client_bundle_directory20-->|Task| Copy_OpenVPN__client_conf__template21[copy openvpn  client conf  template]:::task
   Copy_OpenVPN__client_conf__template21-->|Task| Copy_client_files_to_the___etc_openvpn_client_bundle__directory22[copy client files to the   etc openvpn client<br>bundle  directory]:::task
-  Copy_client_files_to_the___etc_openvpn_client_bundle__directory22-->|Block Start| Unnamed_task_2323_block_start_0[[unnamed task 23<br>When: **openvpn client bundle copy locally local copy and<br>openvpn client bundle copy locally client dir  <br>length   0 and openvpn client bundle copy locally<br>client dir endswith**]]:::block
-  Unnamed_task_2323_block_start_0-->|Task| Unnamed_task_00[unnamed task 0]:::task
+  Copy_client_files_to_the___etc_openvpn_client_bundle__directory22-->|Block Start| Copy_OpenVPN_Client_Bundle_locally23_block_start_0[[copy openvpn client bundle locally<br>When: **openvpn client bundle copy locally local copy and<br>openvpn client bundle copy locally client dir  <br>length   0 and openvpn client bundle copy locally<br>client dir endswith**]]:::block
+  Copy_OpenVPN_Client_Bundle_locally23_block_start_0-->|Task| Unnamed_task_00[unnamed task 0]:::task
   Unnamed_task_00-->|Task| Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1[copy openvpn client bundle locally on     openvpn<br>client bundle copy locally client dir    ]:::task
-  Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-.->|End of Block| Unnamed_task_2323_block_start_0
+  Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-.->|End of Block| Copy_OpenVPN_Client_Bundle_locally23_block_start_0
   Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-->End
 ```
 
