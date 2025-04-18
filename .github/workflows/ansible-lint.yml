@@ -21,8 +21,9 @@ jobs:
       - name: Copy repository into directory with repo name
         run: |
           mkdir "${{ steps.repo_name.outputs.REPO_NAME }}"
-          shopt -s dotglob # include hidden files
-          cp -r * "${{ steps.repo_name.outputs.REPO_NAME }}"
+          shopt -s extglob  # Enable extended globbing
+          # Copy everything except the parent directory
+          cp -r !("${{ steps.repo_name.outputs.REPO_NAME }}") "${{ steps.repo_name.outputs.REPO_NAME }}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -35,4 +36,4 @@ jobs:
 
       - name: Run ansible-lint
         run: |
-          ansible-lint "${{ steps.repo_name.outputs.REPO_NAME }}"
+          ansible-lint ${{ steps.repo_name.outputs.REPO_NAME }}
