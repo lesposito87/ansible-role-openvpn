@@ -21,7 +21,7 @@ jobs:
       - name: Copy repository into directory with repo name
         run: |
           mkdir "${{ steps.repo_name.outputs.REPO_NAME }}"
-          shopt -s extglob  # Enable extended globbing
+          shopt -s extglob  # Needed to copy hidden files
           # Copy everything except the parent directory
           cp -r !("${{ steps.repo_name.outputs.REPO_NAME }}") "${{ steps.repo_name.outputs.REPO_NAME }}"
 
