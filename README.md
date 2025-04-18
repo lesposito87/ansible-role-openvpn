@@ -83,7 +83,7 @@ for secure connections.
 | Copy OpenVPN "client.conf" template | template | False |
 | Copy client files to the "/etc/openvpn/client-bundle" directory | copy | False |
 | Copy OpenVPN Client Bundle locally | block | True |
-| Unnamed | ansible.builtin.find | False |
+| Find files in the directory "/etc/openvpn/client-bundle" | ansible.builtin.find | False |
 | Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.client_dir }}" | ansible.builtin.fetch | False |
 
 
@@ -154,8 +154,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Create_the_client_bundle_directory20-->|Task| Copy_OpenVPN__client_conf__template21[copy openvpn  client conf  template]:::task
   Copy_OpenVPN__client_conf__template21-->|Task| Copy_client_files_to_the___etc_openvpn_client_bundle__directory22[copy client files to the   etc openvpn client<br>bundle  directory]:::task
   Copy_client_files_to_the___etc_openvpn_client_bundle__directory22-->|Block Start| Copy_OpenVPN_Client_Bundle_locally23_block_start_0[[copy openvpn client bundle locally<br>When: **openvpn client bundle copy locally local copy and<br>openvpn client bundle copy locally client dir  <br>length   0 and openvpn client bundle copy locally<br>client dir endswith**]]:::block
-  Copy_OpenVPN_Client_Bundle_locally23_block_start_0-->|Task| Unnamed_task_00[unnamed task 0]:::task
-  Unnamed_task_00-->|Task| Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1[copy openvpn client bundle locally on     openvpn<br>client bundle copy locally client dir    ]:::task
+  Copy_OpenVPN_Client_Bundle_locally23_block_start_0-->|Task| Find_files_in_the_directory___etc_openvpn_client_bundle_0[find files in the directory   etc openvpn client<br>bundle ]:::task
+  Find_files_in_the_directory___etc_openvpn_client_bundle_0-->|Task| Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1[copy openvpn client bundle locally on     openvpn<br>client bundle copy locally client dir    ]:::task
   Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-.->|End of Block| Copy_OpenVPN_Client_Bundle_locally23_block_start_0
   Copy_OpenVPN_Client_Bundle_locally_on_____openvpn_client_bundle_copy_locally_client_dir____1-->End
 ```
