@@ -93,7 +93,8 @@
     path: "{{ easyrsa_binary_dir }}/easyrsa"
   register: stat_easyrsa_binary
 
-- fail:
+- name: Fail if file "{{ easyrsa_binary_dir }}/easyrsa" does not exist
+  fail:
     msg: "File {{ easyrsa_binary_dir }}/easyrsa does not exist!"
   when: not stat_easyrsa_binary.stat.exists
 
@@ -102,7 +103,8 @@
     path: "{{ easyrsa_binary_dir }}/pki"
   register: stat_easyrsa_pki
 
-- debug: 
+- name: Easy-RSA PKI dir was already initialized
+  debug: 
     msg: "Easy-RSA PKI dir was already initialized; if you want to reconfigure it from scratch, remove the '{{ easyrsa_binary_dir }}/pki' directory and rerun the Ansible role"
   when: stat_easyrsa_pki.stat.exists
 
@@ -183,7 +185,8 @@
     - { src: "{{ easyrsa_binary_dir }}/pki/private/client.key", dest: client.key }
     - { src: "{{ easyrsa_binary_dir }}/pki/issued/client.crt", dest: client.crt }
 
-- block:
+- name: Copy OpenVPN Client Bundle locally
+  block:
 
     - ansible.builtin.find:
         paths: "/etc/openvpn/client-bundle"
