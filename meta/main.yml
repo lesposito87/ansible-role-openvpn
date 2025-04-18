@@ -3,7 +3,7 @@ dependencies: []
 
 galaxy_info:
   role_name: openvpn
-  author: https://www.linkedin.com/in/lucaesposito87/
+  author: lesposito87
   description: |
     An Ansible Role that installs and configures an OpenVPN server,
     automatically generating all necessary client configuration files
