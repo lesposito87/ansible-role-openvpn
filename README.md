@@ -4,107 +4,22 @@
 
 ## ansible-role-openvpn
 
-**Description** 
 
-An Ansible Role that installs and configures an OpenVPN server,
+
+Description: An Ansible Role that installs and configures an OpenVPN server,
 automatically generating all necessary client configuration files
 for secure connections.
 
-⚠️ This Ansible Role has been tested exclusively on **Amazon Linux 2**.
 
-**How to execute it?**
 
-**1-** Create the following files, customizing the contents of the `inventory` and `vars.yml` files according to your requirements:
-```
-.
-├── ansible.cfg
-├── inventory
-├── main.yml
-├── requirements.yml
-└── vars.yml
-```
 
-`ansible.cfg`:
-```
-➜ cat ansible.cfg
-[defaults]
-host_key_checking = False
-inventory = inventory
 
-[privilege_escalation]
-become=True
-become_method=sudo
-become_user=root
-become_ask_pass=False
 
-[ssh_connection]
-ssh_args = -o HostKeyAlgorithms=+ssh-rsa -o PubkeyAcceptedKeyTypes=+ssh-rsa
-```
 
-`inventory`:
-```
-➜ cat inventory
-[openvpn_server]
-123.123.123.123 ansible_ssh_port=33333 ansible_ssh_user=ec2-user ansible_ssh_private_key_file=/Users/myuser/.ssh/id_rsa_myuser
-```
 
-`vars.yml`:
-```
-➜ cat vars.yml
-openvpn_client_bundle_copy_locally:
-  local_copy: true
-  client_dir: "/Users/myuser/openvpn/"
-```
 
-`requirements.yml`:
-```
-➜ cat requirements.yml
----
-roles:
-  - name: lesposito87.ansible-role-openvpn
-    src: https://github.com/lesposito87/ansible-role-openvpn.git
-    version: main
-```
 
-`main.yml`:
-```
-➜ cat main.yml
----
-- hosts: openvpn_server
-  become: true
-  gather_facts: True
-  vars_files:
-    - vars.yml
 
-  tasks:
-    - include_role:
-        name: lesposito87.ansible-role-openvpn
-```
-
-**2-** Install the Ansible Role locally:
-```
-➜ ansible-galaxy install -r requirements.yml --force
-```
-
-**3-** Execute the Ansible Playbook:
-```
-➜ ansible-playbook main.yml
-```
-At the end of the execution you should find locally all the required OpenVPN Client files:
-```
-/Users/myuser/openvpn/
-├── ca.crt
-├── ca.key
-├── client.conf
-├── client.crt
-├── client.key
-├── dh.pem
-└── pfs.key
-```
-
-**4-** Import the `client.conf` file into your preferred OpenVPN client software (e.g. [tunnelblink](https://tunnelblick.net/)) and establish the connection to your OpenVPN server.
-
-<br>
 
 ### Defaults
 
@@ -122,9 +37,21 @@ At the end of the execution you should find locally all the required OpenVPN Cli
 | [easy_rsa_git_repo_tag](defaults/main.yml#L27)   | str   | `v3.2.1` |    True  |  EasyRSA Git Repository tag |
 | [openvpn_client_bundle_copy_locally](defaults/main.yml#L31)   | dict   | `{'local_copy': True, 'client_dir': '/tmp/openvpn/'}` |    True  |  Local directory where the resulting OpenVPN client configuration files will be copied. Set this to false if you do not wish to copy the client bundle to your local machine. |
 
-<br>
+
+
+
 
 ### Tasks
+
+
+#### File: tasks/main.yml
+
+| Name | Module | Has Conditions |
+| ---- | ------ | --------- |
+| Wait for connection... |  | False |
+| Assert that "openvpn_server_ip" is set, not empty, and a valid IP address | assert | False |
+| Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/" | assert | False |
+| Including Openvpn setup tasks | include_tasks | False |
 
 #### File: tasks/openvpn.yml
 
@@ -159,18 +86,32 @@ At the end of the execution you should find locally all the required OpenVPN Cli
 | Unnamed | ansible.builtin.find | False |
 | Copy OpenVPN Client Bundle locally on "{{ openvpn_client_bundle_copy_locally.client_dir }}" | ansible.builtin.fetch | False |
 
-#### File: tasks/main.yml
-
-| Name | Module | Has Conditions |
-| ---- | ------ | --------- |
-| Wait for connection... |  | False |
-| Assert that "openvpn_server_ip" is set, not empty, and a valid IP address | assert | False |
-| Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/" | assert | False |
-| Including Openvpn setup tasks | include_tasks | False |
-
-<br>
 
 ## Task Flow Graphs
+
+
+
+### Graph for main.yml
+
+```mermaid
+flowchart TD
+Start
+classDef block stroke:#3498db,stroke-width:2px;
+classDef task stroke:#4b76bb,stroke-width:2px;
+classDef includeTasks stroke:#16a085,stroke-width:2px;
+classDef importTasks stroke:#34495e,stroke-width:2px;
+classDef includeRole stroke:#2980b9,stroke-width:2px;
+classDef importRole stroke:#699ba7,stroke-width:2px;
+classDef includeVars stroke:#8e44ad,stroke-width:2px;
+classDef rescue stroke:#665352,stroke-width:2px;
+
+  Start-->|Task| Wait_for_connection___0[wait for connection   ]:::task
+  Wait_for_connection___0-->|Task| Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1[assert that  openvpn server ip  is set  not empty <br>and a valid ip address]:::task
+  Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1-->|Task| Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2[assert that  openvpn client bundle copy locally<br>client dir  is set  is not empty and ends with    ]:::task
+  Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2-->|Include task| openvpn_yml3[including openvpn setup tasks<br>include_task: openvpn yml]:::includeTasks
+  openvpn_yml3-->End
+```
+
 
 ### Graph for openvpn.yml
 
@@ -220,38 +161,26 @@ classDef rescue stroke:#665352,stroke-width:2px;
 ```
 
 
-### Graph for main.yml
 
-```mermaid
-flowchart TD
-Start
-classDef block stroke:#3498db,stroke-width:2px;
-classDef task stroke:#4b76bb,stroke-width:2px;
-classDef includeTasks stroke:#16a085,stroke-width:2px;
-classDef importTasks stroke:#34495e,stroke-width:2px;
-classDef includeRole stroke:#2980b9,stroke-width:2px;
-classDef importRole stroke:#699ba7,stroke-width:2px;
-classDef includeVars stroke:#8e44ad,stroke-width:2px;
-classDef rescue stroke:#665352,stroke-width:2px;
 
-  Start-->|Task| Wait_for_connection___0[wait for connection   ]:::task
-  Wait_for_connection___0-->|Task| Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1[assert that  openvpn server ip  is set  not empty <br>and a valid ip address]:::task
-  Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1-->|Task| Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2[assert that  openvpn client bundle copy locally<br>client dir  is set  is not empty and ends with    ]:::task
-  Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2-->|Include task| openvpn_yml3[including openvpn setup tasks<br>include_task: openvpn yml]:::includeTasks
-  openvpn_yml3-->End
-```
 
 ## Author Information
 https://www.linkedin.com/in/lucaesposito87/
 
 #### License
+
 MIT
 
 #### Minimum Ansible Version
+
 2.7
 
 #### Platforms
 
 - **Amazon Linux**: ['2']
 
+
+#### Dependencies
+
+No dependencies specified.
 <!-- DOCSIBLE END -->
