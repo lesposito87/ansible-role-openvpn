@@ -165,7 +165,7 @@ classDef rescue stroke:#665352,stroke-width:2px;
 
 
 ## Author Information
-https://www.linkedin.com/in/lucaesposito87/
+lesposito87
 
 #### License
 
