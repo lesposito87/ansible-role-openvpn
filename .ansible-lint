@@ -1,0 +1,9 @@
+skip_list:
+  - ignore-errors             # prefer 'failed_when' over 'ignore_errors'
+  - command-instead-of-shell  # prefer 'command' unless shell features are used
+  - no-changed-when           # expects commands to declare when they cause changes
+  - name[template]            # template expressions should be at end of 'name'
+  - key-order[task]           # enforces ordering of keys inside tasks
+  - risky-shell-pipe          # shell with pipe should set 'pipefail'
+  - role-name                 # suppress role_name check (if not compliant)
+  - galaxy[author]            # suppress author format check

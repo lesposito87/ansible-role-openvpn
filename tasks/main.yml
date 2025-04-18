@@ -1,10 +1,10 @@
 ---
 - name: "Wait for connection..."
-  wait_for_connection:
+  ansible.builtin.wait_for_connection:
     timeout: 300
 
 - name: Assert that "openvpn_server_ip" is set, not empty, and a valid IP address
-  assert:
+  ansible.builtin.assert:
     that:
       - openvpn_server_ip is defined
       - openvpn_server_ip | length > 0
@@ -13,11 +13,11 @@
       - openvpn_server_ip.split('.') | map('int') | select('<=', 255) | list | length == 4 # Ensure octets are <= 255
 
 - name: Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/"
-  assert:
+  ansible.builtin.assert:
     that:
       - openvpn_client_bundle_copy_locally.client_dir is defined
       - openvpn_client_bundle_copy_locally.client_dir | length > 0
       - openvpn_client_bundle_copy_locally.client_dir.endswith('/')
 
 - name: Including Openvpn setup tasks
-  include_tasks: "openvpn.yml"
+  ansible.builtin.include_tasks: "openvpn.yml"
