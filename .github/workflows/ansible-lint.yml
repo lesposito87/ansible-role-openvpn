@@ -36,4 +36,3 @@ jobs:
       - name: Run ansible-lint
         run: |
           ansible-lint "${{ steps.repo_name.outputs.REPO_NAME }}"
-
