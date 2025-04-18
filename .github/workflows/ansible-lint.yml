@@ -21,9 +21,9 @@ jobs:
       - name: Copy repository into directory with repo name
         run: |
           mkdir "${{ steps.repo_name.outputs.REPO_NAME }}"
-          shopt -s dotglob # include hidden files
+          shopt -s extglob  # Enable extended globbing
           # Copy everything except the parent directory
-          cp -r !(ansible-role-openvpn) "${{ steps.repo_name.outputs.REPO_NAME }}"
+          cp -r !("${{ steps.repo_name.outputs.REPO_NAME }}") "${{ steps.repo_name.outputs.REPO_NAME }}"
 
       - name: Set up Python
         uses: actions/setup-python@v5
