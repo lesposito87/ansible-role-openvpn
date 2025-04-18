@@ -188,7 +188,8 @@
 - name: Copy OpenVPN Client Bundle locally
   block:
 
-    - ansible.builtin.find:
+    - name: Find files in the directory "/etc/openvpn/client-bundle"
+      ansible.builtin.find:
         paths: "/etc/openvpn/client-bundle"
         file_type: file
       register: client_bundle_files
