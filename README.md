@@ -28,14 +28,19 @@ for secure connections.
 #### File: defaults/main.yml
 
 | Var          | Type         | Value       |Required    | Title       |
-|--------------|--------------|-------------|-------------|-------------|
-| [openvpn_server_ip](defaults/main.yml#L4)   | str   | `{{ ansible_host }}` |    True  |  Public IP of your OpenVPN instance |
-| [openvpn_pkgs](defaults/main.yml#L8)   | list   | `['openvpn', 'git']` |    True  |  Required packages |
-| [openvpn_subnet_cidr](defaults/main.yml#L14)   | str   | `10.8.0.0` |    True  |  OpenVPN Subnet |
-| [openvpn_subnet_netmask](defaults/main.yml#L18)   | str   | `255.255.255.0` |    True  |  OpenVPN Netmask |
-| [openvpn_nat_rules_subnets](defaults/main.yml#L22)   | list   | `['10.8.0.0/24']` |    True  |  OpenVPN Subnet (used to configure iptables NAT rules) |
-| [easy_rsa_git_repo_tag](defaults/main.yml#L27)   | str   | `v3.2.1` |    True  |  EasyRSA Git Repository tag |
-| [openvpn_client_bundle_copy_locally](defaults/main.yml#L31)   | dict   | `{'local_copy': True, 'client_dir': '/tmp/openvpn/'}` |    True  |  Local directory (on your machine) where the resulting OpenVPN client configuration files will be copied. |
+|--------------|--------------|-------------|------------|-------------|
+| [openvpn_server_ip](defaults/main.yml#L4)   | str | `{{ ansible_host }}` |    True  |  Public IP of your OpenVPN instance |
+| [openvpn_pkgs](defaults/main.yml#L8)   | list | `[]` |    True  |  Required packages |
+| [openvpn_pkgs.**0**](defaults/main.yml#L8)   | str | `openvpn` |    True  |  Required packages |
+| [openvpn_pkgs.**1**](defaults/main.yml#L10)   | str | `git` |    None  |  None |
+| [openvpn_subnet_cidr](defaults/main.yml#L14)   | str | `10.8.0.0` |    True  |  OpenVPN Subnet |
+| [openvpn_subnet_netmask](defaults/main.yml#L18)   | str | `255.255.255.0` |    True  |  OpenVPN Netmask |
+| [openvpn_nat_rules_subnets](defaults/main.yml#L22)   | list | `[]` |    True  |  OpenVPN Subnet (used to configure iptables NAT rules) |
+| [openvpn_nat_rules_subnets.**0**](defaults/main.yml#L23)   | str | `10.8.0.0/24` |    None  |  None |
+| [easy_rsa_git_repo_tag](defaults/main.yml#L27)   | str | `v3.2.1` |    True  |  EasyRSA Git Repository tag |
+| [openvpn_client_bundle_copy_locally](defaults/main.yml#L31)   | dict | `{}` |    True  |  Local directory (on your machine) where the resulting OpenVPN client configuration files will be copied. |
+| [openvpn_client_bundle_copy_locally.**local_copy**](defaults/main.yml#L32)   | bool | `True` |    None  |  None |
+| [openvpn_client_bundle_copy_locally.**client_dir**](defaults/main.yml#L33)   | str | `/tmp/openvpn/` |    None  |  None |
 
 
 
@@ -47,7 +52,7 @@ for secure connections.
 #### File: tasks/main.yml
 
 | Name | Module | Has Conditions |
-| ---- | ------ | --------- |
+| ---- | ------ | -------------- |
 | Wait for connection... | ansible.builtin.wait_for_connection | False |
 | Assert that "openvpn_server_ip" is set, not empty, and a valid IP address | ansible.builtin.assert | False |
 | Assert that "openvpn_client_bundle_copy_locally.client_dir" is set, is not empty and ends with "/" | ansible.builtin.assert | False |
@@ -56,7 +61,7 @@ for secure connections.
 #### File: tasks/openvpn.yml
 
 | Name | Module | Has Conditions |
-| ---- | ------ | --------- |
+| ---- | ------ | -------------- |
 | Check if SELinux is installed | ansible.builtin.find | False |
 | Configuring SELinux in permissive mode | ansible.posix.selinux | True |
 | Ensure Firewalld/Iptables service are stopped | ansible.builtin.service | False |
@@ -108,8 +113,8 @@ classDef rescue stroke:#665352,stroke-width:2px;
   Start-->|Task| Wait_for_connection___0[wait for connection   ]:::task
   Wait_for_connection___0-->|Task| Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1[assert that  openvpn server ip  is set  not empty <br>and a valid ip address]:::task
   Assert_that__openvpn_server_ip__is_set__not_empty__and_a_valid_IP_address1-->|Task| Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2[assert that  openvpn client bundle copy locally<br>client dir  is set  is not empty and ends with    ]:::task
-  Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2-->|Include task| openvpn_yml3[including openvpn setup tasks<br>include_task: openvpn yml]:::includeTasks
-  openvpn_yml3-->End
+  Assert_that__openvpn_client_bundle_copy_locally_client_dir__is_set__is_not_empty_and_ends_with____2-->|Include task| Including_Openvpn_setup_tasks_openvpn_yml_3[including openvpn setup tasks<br>include_task: openvpn yml]:::includeTasks
+  Including_Openvpn_setup_tasks_openvpn_yml_3-->End
 ```
 
 
