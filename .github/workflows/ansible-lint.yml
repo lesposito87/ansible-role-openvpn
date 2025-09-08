@@ -5,4 +5,4 @@ on:
 
 jobs:
   ansible-lint:
-    uses: lesposito87/github-workflows/.github/workflows/ansible-lint.yml@v1.0.14
+    uses: lesposito87/github-workflows/.github/workflows/ansible-lint.yml@v1.0.15
